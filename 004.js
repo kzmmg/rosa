@@ -1,3 +1,6 @@
+// Rabbits and Recurrence Relations
+// rosalind.info/problems/fib/
+
 const fs = require("fs")
 	
 let [n, k] = fs.readFileSync("dataset.txt").toString().split(" ")
