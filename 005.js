@@ -1,3 +1,6 @@
+// Mortal Fibonacci Rabbits
+// rosalind.info/problems/fibd/
+
 const fs = require("fs")
 const bigint = require("big-integer")
 	
