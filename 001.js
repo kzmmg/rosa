@@ -1,3 +1,6 @@
+// Counting DNA Nucleotides 
+// rosalind.info/problems/dna/
+
 const fs = require("fs")
 
 let dataset = fs.readFileSync("dataset.txt").toString()
