@@ -1,3 +1,6 @@
+// Complementing a Strand of DNA 
+// rosalind.info/problems/revc/
+
 const fs = require("fs")
 	
 fs.writeFileSync("answer.txt", Array.
