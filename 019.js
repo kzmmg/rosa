@@ -28,18 +28,34 @@ for (let i = 0, j = 0; i < dataset.length; i++) {
 		lbs[j] = dataset[i].substr(1)
 	} else {
 		strs[j] = dataset[i]
+		console.log(strs[j].length)
 		j++
 	}
 }
 
 //console.log(strs, strs.length)
 const k = 3
+
+function find_suf_len(s1, s2) {
+	let start = s2.length / 2 + 1
+	
+	for (let i = start; i < s2.length; i++) {
+		if (s1.indexOf(s2.substr(0, i)) === -1) {
+			return i - 1
+		}
+	}
+	return 0
+}
+
 let lst = Array(strs.length).fill(-1)
 let revl = Array(strs.length).fill(-1)
+let suflens = Array(strs.length).fill(0)
+
 for (let i = 0; i < strs.length; i++) {
 	let str = strs[i]
 	let halfs = str.substr(0, str.length / 2 + 1)
 	
+	let max = 0
 	for (let j = 0; j < strs.length; j++) {
 		if (j === i) continue
 		
@@ -51,9 +67,17 @@ for (let i = 0; i < strs.length; i++) {
 		if (str1.indexOf(halfs) === - 1) continue
 		if (str.indexOf(halfs1) ===  -1) continue
 		
-		//console.log("----", i, j)
-		lst[j] = i
-		revl[i] = j
+		
+		// this is not enough to assume they line up some string may line up via a longer prefix of str
+		
+		let slen = find_suf_len(str1, str)
+		
+		console.log("----", i, j, slen)
+		if (slen > suflens[j]) {
+			suflens[j] = slen
+			lst[j] = i
+			revl[i] = j
+		}
 	}
 }
 
@@ -71,36 +95,10 @@ for (let i = 0; i < strs.length; i++) {
 	if (revl[i] === -1) start = i
 }
 
-//console.log("start", start)
-let cur = start
-let suflens = []
-while (true) {
-	let next = lst[cur]
-	if (next === -1) break
-	
-	let l1 = strs[cur]
-	let l2 = strs[next]
-	
-	let comp = ""
-	
-	let max = l2.length / 2 + 1
-	
-	for (let i = max; i < l2.length; i++) {
-		if (l1.indexOf(l2.substr(0, i)) === -1) {
-			max = i - 1
-			break
-		}
-	}
-	
-	suflens[cur] = max
-	
-	cur = next
-}
-
+//console.log(start)
 //console.log(suflens)
 let line = ""
-
-cur = start
+let cur = start
 
 while (true) {
 
