@@ -36,8 +36,14 @@ for (let i = 0, j = 0; i < dataset.length; i++) {
 //console.log(strs, strs.length)
 const k = 3
 
+function more_than_half(x) {
+	if (x % 2 === 0) return x / 2 + 1
+	
+	return Math.ceil(x/2)
+}
+
 function find_suf_len(s1, s2) {
-	let start = s2.length / 2 + 1
+	let start = more_than_half(s2.length)
 	
 	for (let i = start; i < s2.length; i++) {
 		if (s1.indexOf(s2.substr(0, i)) === -1) {
@@ -53,14 +59,14 @@ let suflens = Array(strs.length).fill(0)
 
 for (let i = 0; i < strs.length; i++) {
 	let str = strs[i]
-	let halfs = str.substr(0, str.length / 2 + 1)
+	let halfs = str.substr(0, more_than_half(str.length))
 	
 	let max = 0
 	for (let j = 0; j < strs.length; j++) {
 		if (j === i) continue
 		
 		let str1 = strs[j]
-		let halfs1 = str1.substr( -str1.length / 2 - 1)
+		let halfs1 = str1.substr( - more_than_half(str1.length))
 		
 		//console.log(str, str1)
 		//console.log(halfs, halfs1)
