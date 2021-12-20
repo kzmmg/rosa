@@ -1,97 +1,87 @@
 // Finding a Shared Spliced Motif
 // rosalind.info/problems/lcsq/
 const fs = require("fs")
+const bi = require("big-integer")
+let dataset = fs.readFileSync("dataset.txt").toString().split("\r\n")
 
-let amt = `
-G   57.02146
-A   71.03711
-S   87.03203
-P   97.05276
-V   99.06841
-T   101.04768
-C   103.00919
-I   113.08406
-L   113.08406
-N   114.04293
-D   115.02694
-Q   128.05858
-K   128.09496
-E   129.04259
-M   131.04049
-H   137.05891
-F   147.06841
-R   156.10111
-Y   163.06333
-W   186.07931
-`
+dataset = dataset[0].split(" ")
+let N = +dataset[0]
+let m = +dataset[1]
+let g = +dataset[2]
+let k = +dataset[3]
 
-amt = amt.split(/\n+/g)
-amt = amt.slice(1,amt.length-1)
-amt = amt.map(e => { 
-	return [Math.floor(+e.split(/\s+/g)[1] * 100) , e.split(/\s+/g)[0]]
-});
-
-amt = new Map(amt)
+console.log(N, m, g, k)
 
 
-let dataset = fs.readFileSync("dataset.txt").toString().split("\r\n").map(r=>+r)
+//console.log(p,q)
 
-
-dataset.sort((a,b) => a-b)
-
-let hm = []
-let next = []
-hm[dataset.length - 1] = 0
-next[dataset.length - 1] = -1
-
-let acc = (i,j) => {
-	return amt.get(Math.floor((dataset[j]-dataset[i])*100))
+let fm = {}
+let f = (x) => {
+	if(fm[x]) return fm[x]
+	
+	if(x.lt(2)) return bi.one
+	let m1 = fm[x.minus(1).toString()] || f(x.minus(1))
+	fm[x.minus(1).toString()] = m1
+	
+	return m1.times(x)
 }
 
-for (let i = dataset.length - 2; i >= 0; i--) {
-	let b = dataset[i]
-	hm[i] = -1
-	for (j = i + 1; j < dataset.length; j++) {
-		if (acc(i,j)) {
-			let supp = hm[j]
-			
-			if (hm[i] > hm[j]) continue
-			
-			hm[i] = hm[j] + 1
-			next[i] = j
+let c = (n,k) => {
+	return f(n).divide(f(k)).divide(f(n.minus(k)))
+}
+
+let pr = 0
+
+let ws = (m, i) => {
+	let p = m / (2 * N)
+	let q = 1 - p
+	
+	return c(bi(2).times(N), bi(i)) * Math.pow(p,2 * N-i) * Math.pow(q, i)
+}
+
+let ws0 = (m, i) => {
+	let p = m / (2 * N)
+	let q = 1 - p
+	
+	return c(bi(2).times(N), bi(i)) * Math.pow(p,i) * Math.pow(q, 2 * N-i)
+}
+
+let memo = {}
+
+let genrec = (genleft, m) => {
+	if (memo[[genleft,m].join(",")] !== void 0) return memo[[genleft,m].join(",")]
+	
+	if (genleft === 0) {// time to count
+		let pr = 0
+		for (let i = k; i <= 2 * N; i++) {
+			pr += ws(m, i)
 		}
+		
+		
+		memo[[genleft,m].join(",")] = pr
+		
+		//console.log(pr, genleft, m, memo)
+		return pr
 	}
 	
-	if (hm[i] === -1) {
-		hm[i] = 0
-		next[i] = -1
+	let sum = 0
+	for (let m0 = 0; m0 <= 2 * N; m0++) {
+		let pr = ws0(m, m0)
+		
+		let mem = memo[[genleft-1,m0].join(",")]
+		if (mem === void 0) {
+			//console.log(">>>",m0)
+			mem = genrec(genleft - 1, m0)
+		}
+		sum += pr * mem
 	}
-}
-
-console.log(acc(0,1), dataset[1]-dataset[0])
-
-let maxi, max = -1;
-for (let i = 0; i < hm.length;i++) {
-	if(max < hm[i]) {
-		max = hm[i]
-		maxi = i
-	}
-}
-
-let s = ""
-console.log(maxi)
-while(next[maxi] != -1) {
-	let ltr = dataset[next[maxi]] - dataset[maxi]
-	console.log(">",ltr)
-	ltr = amt.get(Math.floor(ltr * 100))
-	s += ltr
 	
-	maxi = next[maxi]
+	memo[[genleft,m].join(",")] = sum
+	//console.log(memo)
+	return sum
+
 }
 
-console.log(dataset.join(" "))
-console.log(hm.join(" "))
-console.log(next.join(" "))
-console.log(s)
-/*metki*/
-fs.writeFileSync("answer.txt", s)
+let out = genrec(g - 1, m)
+console.log(out)
+fs.writeFileSync("answer.txt", out)
