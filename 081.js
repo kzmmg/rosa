@@ -32,7 +32,7 @@ class node {
 	
 	getn() {
 		return this.name
-	}
+	} 
 	
 	print(tab) {
 		if (!tab) tab = 0
